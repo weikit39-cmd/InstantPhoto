@@ -12,15 +12,17 @@
    album / shutter / flip row, brand line, dark tray of prints. A print opens full screen to be shaken. */
 :root {
   --bg: #170f0e;
-  --body: #e3261b;
-  --body-hi: #f2503a;
-  --body-lo: #a9150d;
+  --body: #e9e0cb;
+  --body-hi: #f6f0e1;
+  --body-lo: #cdc1a4;
+  --ink: #3b2a1d;
+  --flipbg: #3b2f26;
   --bezel: #110b0b;
   --shutter: #ff7a12;
   --olive: #6f6e1d;
-  --plum: #2b1827;
+  --plum: #2a2326;
   --paper: #f4efe3;
-  --cream: #fff1e2;
+  --cream: #fff4e6;
   --font-display: "ZCOOL KuaiLe", "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
   --font-ui: system-ui, -apple-system, "PingFang SC", "Microsoft YaHei", "Segoe UI", sans-serif;
   color-scheme: dark;
@@ -55,20 +57,27 @@ button:focus-visible, input:focus-visible { outline: 3px solid var(--cream); out
   background:
     radial-gradient(120% 60% at 50% 0%, var(--body-hi), transparent 60%),
     linear-gradient(180deg, var(--body), var(--body-lo));
-  box-shadow: inset 0 0 0 3px rgba(0,0,0,.28), inset 0 2px 0 4px rgba(255,255,255,.12), 0 18px 40px rgba(0,0,0,.5);
+  box-shadow: inset 0 0 0 3px rgba(60,42,25,.22), inset 0 2px 0 4px rgba(255,255,255,.55), 0 18px 40px rgba(0,0,0,.5);
 }
-.slot { position: relative; width: 44%; height: 14px; border-radius: 99px; background: var(--bezel); box-shadow: inset 0 3px 4px #000, 0 1px 0 rgba(255,255,255,.18); flex: none; }
+.slot { position: relative; width: 44%; height: 14px; border-radius: 99px; background: var(--bezel); box-shadow: inset 0 3px 4px #000, 0 1px 0 rgba(255,255,255,.6); flex: none; }
 .slot::after { content: ""; position: absolute; inset: 5px 10px; border-radius: 99px; background: #2a1d1c; }
 .led { position: absolute; right: -22px; top: 3px; width: 8px; height: 8px; border-radius: 50%; background: #2f5a2a; box-shadow: 0 0 0 2px rgba(0,0,0,.3); }
 .led.on { background: #7dff5a; box-shadow: 0 0 8px #7dff5a, 0 0 0 2px rgba(0,0,0,.3); }
 
-.bezel { flex: none; background: var(--bezel); padding: 12px; border-radius: 34px; box-shadow: inset 0 0 0 2px #2a1c1b, 0 2px 0 rgba(255,255,255,.18); }
+.bezel { flex: none; background: var(--bezel); padding: 12px; border-radius: 34px; box-shadow: inset 0 0 0 2px #2a1c1b, 0 2px 0 rgba(255,255,255,.6); }
 .vf { position: relative; width: clamp(210px, min(calc(100vw - 32px - 32px - 24px - 2px), 36dvh), 330px); aspect-ratio: 1; border-radius: 22px; overflow: hidden; background: #000; }
 .vf-media { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
 #video { display: none; }
 .vf.live #video { display: block; }
 .vf.live #idle { display: none; }
-.vf.mirror #video { transform: scaleX(-1); }
+.vf.live #video { transform: scale(var(--zd, 1)); }
+.vf.mirror #video { transform: scaleX(-1) scale(var(--zd, 1)); }
+.zoom-ui { position: absolute; left: 10px; right: 10px; bottom: 10px; z-index: 3; display: none; justify-content: space-between; align-items: flex-end; pointer-events: none; }
+.vf.live .zoom-ui { display: flex; }
+.zoom-read { padding: 4px 10px; border-radius: 99px; background: rgba(0,0,0,.5); color: #fff; font-size: 13px; font-weight: 700; font-variant-numeric: tabular-nums; letter-spacing: .02em; }
+.zoom-btn { pointer-events: auto; width: 44px; height: 44px; border-radius: 50%; background: rgba(0,0,0,.5); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); display: grid; place-items: center; box-shadow: inset 0 0 0 1.5px rgba(255,255,255,.4); }
+.zoom-btn:active { transform: scale(.94); }
+.zoom-btn svg { width: 22px; height: 22px; }
 .vf-fx { position: absolute; inset: 0; pointer-events: none; transition: background .25s; }
 .vf-msg { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; padding: 18px; text-align: center; background: rgba(12,6,6,.62); font-size: 13.5px; line-height: 1.55; }
 .vf.live .vf-msg { display: none; }
@@ -78,8 +87,8 @@ button:focus-visible, input:focus-visible { outline: 3px solid var(--cream); out
 @keyframes flash { 0% { opacity: .95; } 100% { opacity: 0; } }
 
 .chips { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; width: 100%; max-width: 310px; flex: none; }
-.chip { padding: 8px 6px; border-radius: 99px; background: rgba(0,0,0,.26); font-size: 13px; font-weight: 600; letter-spacing: .02em; text-align: center; transition: background .15s, color .15s; }
-.chip[aria-checked="true"] { background: var(--cream); color: #3a0d09; }
+.chip { padding: 8px 6px; border-radius: 99px; color: var(--ink); background: rgba(70,50,30,.13); font-size: 13px; font-weight: 600; letter-spacing: .02em; text-align: center; transition: background .15s, color .15s; }
+.chip[aria-checked="true"] { background: #2b1f18; color: var(--cream); }
 
 .controls { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; width: 100%; max-width: 300px; flex: none; }
 .controls .left { justify-self: start; }
@@ -88,12 +97,12 @@ button:focus-visible, input:focus-visible { outline: 3px solid var(--cream); out
 .round:active { transform: translateY(2px); }
 .round svg { width: 24px; height: 24px; }
 .album { background: var(--olive); }
-.flip { background: var(--body-lo); }
+.flip { background: var(--flipbg); }
 .shutter { width: 82px; height: 82px; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #ffb15a, var(--shutter) 55%, #e05f00); box-shadow: 0 0 0 6px rgba(0,0,0,.28), inset 0 -6px 0 rgba(0,0,0,.2), 0 5px 0 6px rgba(0,0,0,.35); transition: transform .08s; }
 .shutter:active { transform: translateY(3px) scale(.96); }
 
-.brand { flex: none; display: flex; align-items: baseline; gap: 10px; color: var(--cream); }
-.brand b { font-family: var(--font-display); font-weight: 400; font-size: 28px; letter-spacing: .06em; text-shadow: 0 2px 0 rgba(0,0,0,.25); }
+.brand { flex: none; display: flex; align-items: baseline; gap: 10px; color: var(--ink); }
+.brand b { font-family: var(--font-display); font-weight: 400; font-size: 28px; letter-spacing: .06em; text-shadow: 0 1px 0 rgba(255,255,255,.6); }
 .brand small { font-size: 10px; letter-spacing: .22em; opacity: .8; }
 
 .tray { flex: 1 1 auto; min-height: 170px; width: 100%; background: var(--plum); border-radius: 16px; padding: 12px; box-shadow: inset 0 3px 8px rgba(0,0,0,.5); }
@@ -127,8 +136,8 @@ button:focus-visible, input:focus-visible { outline: 3px solid var(--cream); out
 .meter { height: 6px; border-radius: 99px; background: rgba(255,241,226,.16); overflow: hidden; }
 .meter i { display: block; height: 100%; width: 0; background: var(--shutter); border-radius: 99px; }
 .v-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
-.v-row .chip { padding: 8px 2px; font-size: 12.5px; background: rgba(255,241,226,.12); }
-.v-row .chip[aria-checked="true"] { background: var(--cream); }
+.v-row .chip { padding: 8px 2px; font-size: 12.5px; color: var(--cream); background: rgba(255,241,226,.12); }
+.v-row .chip[aria-checked="true"] { background: var(--cream); color: #3a0d09; }
 .cap { width: 100%; padding: 10px 14px; border-radius: 12px; border: 1px solid rgba(255,241,226,.2); background: rgba(255,241,226,.08); color: var(--cream); font: inherit; font-size: 14px; }
 .cap::placeholder { color: rgba(255,241,226,.5); }
 .v-actions { display: grid; grid-template-columns: 1fr auto; gap: 8px; }
@@ -159,6 +168,12 @@ button:focus-visible, input:focus-visible { outline: 3px solid var(--cream); out
         <button class="btn-pill" id="startCam" type="button" hidden>开启相机</button>
       </div>
       <div class="flash" id="flash"></div>
+      <div class="zoom-ui">
+        <span class="zoom-read" id="zoomRead">1.0×</span>
+        <button class="zoom-btn" id="zoomBtn" type="button" aria-label="放大">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round"><path id="zoomIcon" d="M12 5v14M5 12h14"/></svg>
+        </button>
+      </div>
     </div>
   </div>
 
@@ -536,9 +551,9 @@ button:focus-visible, input:focus-visible { outline: 3px solid var(--cream); out
       return it;
     });
   }
-  function cropSquareBlob(src, sw, sh, mirror) {
+  function cropSquareBlob(src, sw, sh, mirror, zoomD) {
     var c = newCanvas(SP, SP), x = c.getContext('2d'); x.imageSmoothingQuality = 'high';
-    var s = Math.min(sw, sh), sx = (sw - s) / 2, sy = (sh - s) / 2;
+    var s = Math.min(sw, sh) / (zoomD || 1), sx = (sw - s) / 2, sy = (sh - s) / 2;
     if (mirror) { x.translate(SP, 0); x.scale(-1, 1); }
     x.drawImage(src, sx, sy, s, s, 0, 0, SP, SP);
     return new Promise(function (res) { c.toBlob(res, 'image/jpeg', .95); });
@@ -561,6 +576,59 @@ button:focus-visible, input:focus-visible { outline: 3px solid var(--cream); out
   $('#albumInput').addEventListener('change', function (e) { handleFiles(e.target.files); e.target.value = ''; });
   $('#captureInput').addEventListener('change', function (e) { handleFiles(e.target.files); e.target.value = ''; });
 
+  /* ---------- zoom: hardware zoom when the camera offers it, digital zoom otherwise ---------- */
+  var zoom = { hw: false, min: 1, max: 5, cur: 1, dirIn: false, raf: 0, from: 1, to: 1, t0: 0, dur: 3000 };
+  function zoomTrack() { return state.stream && state.stream.getVideoTracks()[0]; }
+  function fmtZoom(z) { return (Math.round(z * 10) / 10).toFixed(1) + '×'; }
+  var lastHw = 0;
+  function applyZoom(z, force) {
+    z = clamp(z, zoom.min, zoom.max); zoom.cur = z;
+    if (zoom.hw) {
+      var tr = zoomTrack(), nowT = performance.now();
+      if (tr && (force || nowT - lastHw >= 70)) { lastHw = nowT; tr.applyConstraints({ advanced: [{ zoom: z }] }).catch(function () { useDigitalZoom(); }); }
+      $('#vf').style.setProperty('--zd', 1);
+    } else { $('#vf').style.setProperty('--zd', z); }
+    $('#zoomRead').textContent = fmtZoom(z);
+  }
+  function useDigitalZoom() {
+    cancelAnimationFrame(zoom.raf);
+    zoom.hw = false; zoom.min = 1; zoom.max = 5; zoom.cur = 1; zoom.dirIn = false;
+    applyZoom(1); updateZoomIcon();
+  }
+  function updateZoomIcon() {
+    $('#zoomIcon').setAttribute('d', zoom.dirIn ? 'M5 12h14' : 'M12 5v14M5 12h14');
+    $('#zoomBtn').setAttribute('aria-label', zoom.dirIn ? '缩小' : '放大');
+  }
+  function initZoom() {
+    cancelAnimationFrame(zoom.raf);
+    var tr = zoomTrack(), caps = {}, st = {};
+    try { caps = (tr && tr.getCapabilities && tr.getCapabilities()) || {}; st = (tr && tr.getSettings && tr.getSettings()) || {}; } catch (e) {}
+    if (caps.zoom && caps.zoom.max > caps.zoom.min) {
+      zoom.hw = true; zoom.min = Math.max(.1, caps.zoom.min); zoom.max = caps.zoom.max; zoom.cur = clamp(st.zoom || zoom.min, zoom.min, zoom.max);
+    } else { zoom.hw = false; zoom.min = 1; zoom.max = 5; zoom.cur = 1; }
+    zoom.dirIn = false;
+    applyZoom(zoom.cur); updateZoomIcon();
+  }
+  function zoomTo(target) {
+    cancelAnimationFrame(zoom.raf);
+    zoom.from = zoom.cur; zoom.to = target;
+    var full = Math.log(zoom.max / zoom.min) || 1;
+    zoom.dur = clamp(Math.abs(Math.log(target / zoom.from)) / full * 4000 + 500, 500, 4500);
+    zoom.t0 = performance.now();
+    var step = function (now) {
+      var k = clamp((now - zoom.t0) / zoom.dur, 0, 1);
+      var e = k < .5 ? 2 * k * k : 1 - Math.pow(-2 * k + 2, 2) / 2;
+      applyZoom(Math.exp(Math.log(zoom.from) + (Math.log(zoom.to) - Math.log(zoom.from)) * e), k >= 1);
+      if (k < 1) zoom.raf = requestAnimationFrame(step);
+    };
+    zoom.raf = requestAnimationFrame(step);
+  }
+  $('#zoomBtn').addEventListener('click', function () {
+    zoom.dirIn = !zoom.dirIn;
+    zoomTo(zoom.dirIn ? zoom.max : zoom.min);
+    updateZoomIcon();
+  });
+
   /* ---------- live camera ---------- */
   var ua = navigator.userAgent || '';
   var inApp = /Instagram|FBAN|FBAV|FB_IAB|TikTok|musical_ly|BytedanceWebview|MicroMessenger|Line\/|Snapchat|Threads/i.test(ua);
@@ -572,6 +640,7 @@ button:focus-visible, input:focus-visible { outline: 3px solid var(--cream); out
     var b = $('#startCam'); b.hidden = !showBtn; if (btnText) b.textContent = btnText;
   }
   function stopCam() {
+    cancelAnimationFrame(zoom.raf);
     if (state.stream) { state.stream.getTracks().forEach(function (t) { t.stop(); }); }
     state.stream = null; state.camOn = false; $('#video').srcObject = null;
   }
@@ -605,7 +674,7 @@ button:focus-visible, input:focus-visible { outline: 3px solid var(--cream); out
         state.camOn = true;
         var tr = state.stream.getVideoTracks()[0], st = tr && tr.getSettings ? tr.getSettings() : {};
         if (st.facingMode) state.facing = st.facingMode === 'user' ? 'user' : 'environment';
-        setVf(true);
+        setVf(true); initZoom();
       }).catch(function (err) {
         state.camOn = false;
         setVf(false, failMessage(err), true, '重试开启相机');
@@ -624,7 +693,7 @@ button:focus-visible, input:focus-visible { outline: 3px solid var(--cream); out
       var v = $('#video');
       if (!v.videoWidth) { toast('相机还没准备好，稍等一下。'); return; }
       var f = $('#flash'); f.classList.remove('go'); void f.offsetWidth; f.classList.add('go');
-      cropSquareBlob(v, v.videoWidth, v.videoHeight, state.facing === 'user').then(function (blob) { ingest(blob, true); });
+      cropSquareBlob(v, v.videoWidth, v.videoHeight, state.facing === 'user', zoom.hw ? 1 : zoom.cur).then(function (blob) { ingest(blob, true); });
     } else {
       $('#captureInput').click();
     }
