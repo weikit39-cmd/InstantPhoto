@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#170f0e">
 <title>晃晃拍立得</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caveat:wght@500&family=ZCOOL+KuaiLe&family=Zhi+Mang+Xing&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Long+Cang&family=ZCOOL+KuaiLe&display=swap">
 <style>
 /* Layout: a physical red pocket camera. Top slot ejects the print, bezeled live viewfinder, four mode chips,
    album / shutter / flip row, brand line, dark tray of prints. A print opens full screen to be shaken. */
@@ -75,8 +75,10 @@ button:focus-visible, input:focus-visible { outline: 3px solid var(--cream); out
 .zoom-ui { position: absolute; left: 10px; right: 10px; bottom: 10px; z-index: 3; display: none; justify-content: space-between; align-items: flex-end; pointer-events: none; }
 .vf.live .zoom-ui { display: flex; }
 .zoom-read { padding: 4px 10px; border-radius: 99px; background: rgba(0,0,0,.5); color: #fff; font-size: 13px; font-weight: 700; font-variant-numeric: tabular-nums; letter-spacing: .02em; }
-.zoom-btn { pointer-events: auto; width: 44px; height: 44px; border-radius: 50%; background: rgba(0,0,0,.5); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); display: grid; place-items: center; box-shadow: inset 0 0 0 1.5px rgba(255,255,255,.4); }
+.zoom-pad { display: flex; gap: 8px; pointer-events: auto; }
+.zoom-btn { touch-action: none; -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; transition: opacity .15s; width: 44px; height: 44px; border-radius: 50%; background: rgba(0,0,0,.5); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); display: grid; place-items: center; box-shadow: inset 0 0 0 1.5px rgba(255,255,255,.4); }
 .zoom-btn:active { transform: scale(.94); }
+.zoom-btn.dim { opacity: .35; }
 .zoom-btn svg { width: 22px; height: 22px; }
 .vf-fx { position: absolute; inset: 0; pointer-events: none; transition: background .25s; }
 .vf-msg { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; padding: 18px; text-align: center; background: rgba(12,6,6,.62); font-size: 13.5px; line-height: 1.55; }
@@ -170,9 +172,10 @@ button:focus-visible, input:focus-visible { outline: 3px solid var(--cream); out
       <div class="flash" id="flash"></div>
       <div class="zoom-ui">
         <span class="zoom-read" id="zoomRead">1.0×</span>
-        <button class="zoom-btn" id="zoomBtn" type="button" aria-label="放大">
-          <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round"><path id="zoomIcon" d="M12 5v14M5 12h14"/></svg>
-        </button>
+<div class="zoom-pad">
+          <button class="zoom-btn" id="zoomOut" type="button" aria-label="缩小"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round"><path d="M5 12h14"/></svg></button>
+          <button class="zoom-btn" id="zoomIn" type="button" aria-label="放大"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button>
+        </div>
       </div>
     </div>
   </div>
@@ -232,6 +235,8 @@ button:focus-visible, input:focus-visible { outline: 3px solid var(--cream); out
   var K = 1.2, UW = 1000, UH = 1216, UM = 52, US = 896;
   var W = Math.round(UW * K), H = Math.round(UH * K), SP = Math.round(US * K);
   var MAX_ITEMS = 30;
+  var PRINT_FONT = '"Long Cang","Ma Shan Zheng","Kaiti SC","KaiTi",cursive';
+  var PRINT_SIZE = 58;
 
   /* Modes. 'raw' = no grading at all, just the frame. Other numbers drive the grading loop. */
   var MODES = {
@@ -454,25 +459,20 @@ button:focus-visible, input:focus-visible { outline: 3px solid var(--cream); out
     var gl = x.createLinearGradient(UM, UM, UM + US, UM + US); gl.addColorStop(0, 'rgba(255,255,255,.10)'); gl.addColorStop(.4, 'rgba(255,255,255,0)');
     x.fillStyle = gl; x.fillRect(UM, UM, US, US);
     x.strokeStyle = 'rgba(0,0,0,.18)'; x.lineWidth = 3; x.strokeRect(UM + 1.5, UM + 1.5, US - 3, US - 3);
-    x.textAlign = 'center'; x.textBaseline = 'middle'; x.fillStyle = 'rgba(38,42,72,.8)';
-    if (it.caption) {
-      x.save(); x.translate(UW / 2, 1040); x.rotate(-.022);
-      var size = 92; x.font = size + 'px "Zhi Mang Xing","Caveat",cursive';
-      while (x.measureText(it.caption).width > 840 && size > 40) { size -= 4; x.font = size + 'px "Zhi Mang Xing","Caveat",cursive'; }
-      x.fillText(it.caption, 0, 0); x.restore();
-      x.fillStyle = 'rgba(38,42,72,.55)'; x.font = '46px "Caveat",cursive'; x.fillText(it.date, UW / 2, 1150);
-    } else {
-      x.save(); x.translate(UW / 2, 1086); x.rotate(-.02); x.font = '76px "Caveat",cursive'; x.fillText(it.date, 0, 0); x.restore();
-    }
+    /* All print text: one face, one size, one colour, same slight tilt. */
+    x.textAlign = 'center'; x.textBaseline = 'middle'; x.fillStyle = 'rgba(38,42,72,.82)';
+    x.font = PRINT_SIZE + 'px ' + PRINT_FONT;
+    var lines = it.caption ? [[it.caption, 1032], [it.date, 1120]] : [[it.date, 1086]];
+    lines.forEach(function (ln) {
+      x.save(); x.translate(UW / 2, ln[1]); x.rotate(-.02); x.fillText(ln[0], 0, 0); x.restore();
+    });
     return c;
   }
   function ensureFonts(text) {
     var jobs = [];
-    try {
-      jobs.push(document.fonts.load('48px Caveat', '2026.10.17'));
-      if (text) jobs.push(document.fonts.load('48px "Zhi Mang Xing"', text));
-    } catch (e) { return Promise.resolve(); }
-    return Promise.race([Promise.all(jobs), new Promise(function (r) { setTimeout(r, 1500); })]).catch(function () {});
+    try { jobs.push(document.fonts.load(PRINT_SIZE + 'px "Long Cang"', '0123456789.' + (text || ''))); }
+    catch (e) { return Promise.resolve(); }
+    return Promise.race([Promise.all(jobs), new Promise(function (r) { setTimeout(r, 2000); })]).catch(function () {});
   }
   function loadBlob(blob) {
     return new Promise(function (resolve, reject) {
@@ -576,11 +576,12 @@ button:focus-visible, input:focus-visible { outline: 3px solid var(--cream); out
   $('#albumInput').addEventListener('change', function (e) { handleFiles(e.target.files); e.target.value = ''; });
   $('#captureInput').addEventListener('change', function (e) { handleFiles(e.target.files); e.target.value = ''; });
 
-  /* ---------- zoom: hardware zoom when the camera offers it, digital zoom otherwise ---------- */
-  var zoom = { hw: false, min: 1, max: 5, cur: 1, dirIn: false, raf: 0, from: 1, to: 1, t0: 0, dur: 3000 };
+  /* ---------- zoom: tap = one step, hold = slow continuous. Hardware zoom if offered, else digital. ---------- */
+  var zoom = { hw: false, min: 1, max: 5, cur: 1, goal: 1, raf: 0 };
+  var lastHw = 0;
   function zoomTrack() { return state.stream && state.stream.getVideoTracks()[0]; }
   function fmtZoom(z) { return (Math.round(z * 10) / 10).toFixed(1) + '×'; }
-  var lastHw = 0;
+  function stepSize() { return clamp(Math.round((zoom.max - zoom.min) / 12 * 10) / 10, .1, .5); }
   function applyZoom(z, force) {
     z = clamp(z, zoom.min, zoom.max); zoom.cur = z;
     if (zoom.hw) {
@@ -590,14 +591,14 @@ button:focus-visible, input:focus-visible { outline: 3px solid var(--cream); out
     } else { $('#vf').style.setProperty('--zd', z); }
     $('#zoomRead').textContent = fmtZoom(z);
   }
+  function updateZoomUI() {
+    $('#zoomIn').classList.toggle('dim', zoom.cur >= zoom.max - .001);
+    $('#zoomOut').classList.toggle('dim', zoom.cur <= zoom.min + .001);
+  }
   function useDigitalZoom() {
     cancelAnimationFrame(zoom.raf);
-    zoom.hw = false; zoom.min = 1; zoom.max = 5; zoom.cur = 1; zoom.dirIn = false;
-    applyZoom(1); updateZoomIcon();
-  }
-  function updateZoomIcon() {
-    $('#zoomIcon').setAttribute('d', zoom.dirIn ? 'M5 12h14' : 'M12 5v14M5 12h14');
-    $('#zoomBtn').setAttribute('aria-label', zoom.dirIn ? '缩小' : '放大');
+    zoom.hw = false; zoom.min = 1; zoom.max = 5; zoom.goal = 1;
+    applyZoom(1, true); updateZoomUI();
   }
   function initZoom() {
     cancelAnimationFrame(zoom.raf);
@@ -606,28 +607,52 @@ button:focus-visible, input:focus-visible { outline: 3px solid var(--cream); out
     if (caps.zoom && caps.zoom.max > caps.zoom.min) {
       zoom.hw = true; zoom.min = Math.max(.1, caps.zoom.min); zoom.max = caps.zoom.max; zoom.cur = clamp(st.zoom || zoom.min, zoom.min, zoom.max);
     } else { zoom.hw = false; zoom.min = 1; zoom.max = 5; zoom.cur = 1; }
-    zoom.dirIn = false;
-    applyZoom(zoom.cur); updateZoomIcon();
+    zoom.goal = zoom.cur;
+    applyZoom(zoom.cur, true); updateZoomUI();
   }
-  function zoomTo(target) {
+  function glideTo(target, ms) {
     cancelAnimationFrame(zoom.raf);
-    zoom.from = zoom.cur; zoom.to = target;
-    var full = Math.log(zoom.max / zoom.min) || 1;
-    zoom.dur = clamp(Math.abs(Math.log(target / zoom.from)) / full * 4000 + 500, 500, 4500);
-    zoom.t0 = performance.now();
+    var from = zoom.cur, t0 = performance.now(); zoom.goal = target;
     var step = function (now) {
-      var k = clamp((now - zoom.t0) / zoom.dur, 0, 1);
-      var e = k < .5 ? 2 * k * k : 1 - Math.pow(-2 * k + 2, 2) / 2;
-      applyZoom(Math.exp(Math.log(zoom.from) + (Math.log(zoom.to) - Math.log(zoom.from)) * e), k >= 1);
+      var k = clamp((now - t0) / ms, 0, 1), e = 1 - Math.pow(1 - k, 3);
+      applyZoom(from + (target - from) * e, k >= 1); updateZoomUI();
       if (k < 1) zoom.raf = requestAnimationFrame(step);
     };
     zoom.raf = requestAnimationFrame(step);
   }
-  $('#zoomBtn').addEventListener('click', function () {
-    zoom.dirIn = !zoom.dirIn;
-    zoomTo(zoom.dirIn ? zoom.max : zoom.min);
-    updateZoomIcon();
-  });
+  function tapStep(dir) { glideTo(clamp(zoom.goal + dir * stepSize(), zoom.min, zoom.max), 160); }
+  function holdZoom(dir) {
+    cancelAnimationFrame(zoom.raf);
+    var last = performance.now();
+    var loop = function (now) {
+      var dt = Math.min(50, now - last); last = now;
+      var nz = clamp(zoom.cur * Math.exp(dir * .35 * dt / 1000), zoom.min, zoom.max);
+      applyZoom(nz); zoom.goal = nz; updateZoomUI();
+      if ((dir > 0 && nz < zoom.max) || (dir < 0 && nz > zoom.min)) zoom.raf = requestAnimationFrame(loop); else applyZoom(nz, true);
+    };
+    zoom.raf = requestAnimationFrame(loop);
+  }
+  function bindZoomBtn(sel, dir) {
+    var b = $(sel), timer = 0, holding = false, active = false;
+    b.addEventListener('pointerdown', function (e) {
+      e.preventDefault(); active = true; holding = false;
+      try { b.setPointerCapture(e.pointerId); } catch (err) {}
+      timer = setTimeout(function () { holding = true; holdZoom(dir); }, 380);
+    });
+    b.addEventListener('pointerup', function () {
+      if (!active) return; active = false; clearTimeout(timer);
+      if (holding) { cancelAnimationFrame(zoom.raf); applyZoom(zoom.cur, true); zoom.goal = zoom.cur; } else { tapStep(dir); }
+      holding = false;
+    });
+    b.addEventListener('pointercancel', function () {
+      active = false; clearTimeout(timer);
+      if (holding) { cancelAnimationFrame(zoom.raf); applyZoom(zoom.cur, true); zoom.goal = zoom.cur; }
+      holding = false;
+    });
+    b.addEventListener('click', function (e) { if (e.detail === 0) tapStep(dir); });
+    b.addEventListener('contextmenu', function (e) { e.preventDefault(); });
+  }
+  bindZoomBtn('#zoomIn', 1); bindZoomBtn('#zoomOut', -1);
 
   /* ---------- live camera ---------- */
   var ua = navigator.userAgent || '';
